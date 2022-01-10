@@ -1,0 +1,53 @@
+Render Blender Files on Google Colab
+Created by microSingularity
+https://www.youtube.com/c/MicroSingularity
+
+#Connect Google Drive to Google Colab
+#=====================================
+from google.colab import drive
+drive.mount('/content/drive')
+#Download Blender from Blender Repository. 
+#Other Versions are here: https://download.blender.org/release/
+#=====================================
+!wget https://download.blender.org/release/Blender3.0/blender-3.0.0-linux-x64.tar.xz
+#Use these commands to move Blender zip file to Google Drive and then back to working directory so you don't have to download Blender each time
+
+#Copy Blender Zip File to Google Drive
+#=====================================
+#!cp /content/blender-2.93.5-linux-x64.tar.xz /content/drive/MyDrive/Blender/blender-2.93.5-linux-x64.tar.xz
+
+#Copy Blender Zip File from Google Drive
+#=====================================
+#!cp /content/drive/MyDrive/Blender/blender-2.93.5-linux-x64.tar.xz /content/blender-2.93.5-linux-x64.tar.xz
+#Unzip Blender 
+#=====================================
+!tar xf blender-2.93.5-linux-x64.tar.xz
+#Deletes the Default libtcmalloc-minimal4 version and installs the Ubuntu default version
+import os
+
+os.environ["LD_PRELOAD"] = ""
+
+#Deletes wrong Version of libtcmalloc-minimal4
+!apt remove libtcmalloc-minimal4
+#Installs correct version of libtcmalloc-minimal4
+!apt install libtcmalloc-minimal4
+
+#Adds this library to the user environment
+os.environ["LD_PRELOAD"] = "/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4.3.0"
+#Path of Blender File to be Rendered 
+#===========================
+filename = '/content/drive/MyDrive/BlenderColab.blend'
+#Render Single Frame: Change -f 1 to -f 100 to render frame 100 for example
+#===========================================================================
+#!./blender-2.93.5-linux-x64/blender -b $filename -noaudio -E 'CYCLES' --debug-all -o "/content/drive/MyDrive/Blender" -f 1 -F 'PNG' -- --cycles-device CUDA
+
+#Render Single Frame using OPTIX, if GPU supports it, otherwise use CUDA. 
+#===========================================================================
+#!./blender-2.93.5-linux-x64/blender -b $filename -noaudio -E 'CYCLES' -o "/content/drive/MyDrive/Blender" -f 1 -F 'PNG' -- --cycles-device OPTIX
+
+#Render Animation: -s 1 and -e 250 means, render frames 1 to 250 of animation, -a means render animation. Animation will be rendered in whatever format was chosen in blender file. i.e. MP4
+#===========================================================================
+!./blender-2.93.5-linux-x64/blender -b $filename -noaudio -E 'CYCLES' -o "/content/drive/MyDrive/Blender" -s 1 -e 250 -a -- --cycles-device CUDA
+#Uncomment to Check NVidia GPU Status. i.e. What GPU you are using
+#=================================================================
+#!nvidia-smi
